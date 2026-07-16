@@ -10,3 +10,4 @@ run it.
 - 1.2. [todo-app](https://github.com/cirenandre/KubernetesSubmissions/tree/1.2/todo-app)
 - 1.3. [log_output](https://github.com/cirenandre/KubernetesSubmissions/tree/1.3/log_output)
 - 1.4. [todo-app](https://github.com/cirenandre/KubernetesSubmissions/tree/1.4/todo-app)
+- 1.5. [todo-app](https://github.com/cirenandre/KubernetesSubmissions/tree/1.5/todo-app)
