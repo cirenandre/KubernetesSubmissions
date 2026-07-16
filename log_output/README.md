@@ -19,3 +19,10 @@ or
 ```bash
 npm start
 ```
+
+## Running with Docker
+
+```bash
+docker build -t log_output .
+docker run --rm log_output
+```
