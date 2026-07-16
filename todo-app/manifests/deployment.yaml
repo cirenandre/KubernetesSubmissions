@@ -14,10 +14,17 @@ spec:
       labels:
         app: todo-app
     spec:
+      volumes:
+        - name: shared-log-volume
+          persistentVolumeClaim:
+            claimName: todo-app-pvc
       containers:
         - name: todo-app
-          image: todo-app:1.1
+          image: todo-app:1.2
           imagePullPolicy: Never
+          volumeMounts:
+            - name: shared-log-volume
+              mountPath: /usr/src/app/files
           env:
             - name: PORT
               value: "3000"
