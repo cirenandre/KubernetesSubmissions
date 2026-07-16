@@ -1,0 +1,10 @@
+{
+  "name": "log-output-reader",
+  "version": "1.0.0",
+  "description": "Exercise 1.10: reads the status file written by the writer and serves it over HTTP.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "license": "MIT"
+}

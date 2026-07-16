@@ -14,7 +14,19 @@ spec:
       labels:
         app: my-app
     spec:
+      volumes: 
+        - name: shared-log-volume
+          emptyDir: {}
       containers:
-        - name: my-app-container
-          image: task11:latest
+        - name: app-reader
+          image: reader:1.1
           imagePullPolicy: Never
+          volumeMounts: # Mount volume
+          - name: shared-log-volume
+            mountPath:  /usr/src/app/files
+        - name: app-writer
+          image: writer:1.1
+          imagePullPolicy: Never
+          volumeMounts: # Mount volume
+          - name: shared-log-volume
+            mountPath:  /usr/src/app/files

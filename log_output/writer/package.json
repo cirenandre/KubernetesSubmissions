@@ -1,0 +1,10 @@
+{
+  "name": "log-output-writer",
+  "version": "1.0.0",
+  "description": "Exercise 1.10: generates a random string on startup and writes it with a timestamp to a file every 5 seconds.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "license": "MIT"
+}
