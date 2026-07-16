@@ -14,9 +14,10 @@ spec:
       labels:
         app: my-app
     spec:
-      volumes: 
+      volumes:
         - name: shared-log-volume
-          emptyDir: {}
+          persistentVolumeClaim:
+            claimName: log-output-pvc
       containers:
         - name: app-reader
           image: reader:1.1
