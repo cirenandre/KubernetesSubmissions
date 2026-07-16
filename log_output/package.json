@@ -1,0 +1,10 @@
+{
+  "name": "log_output",
+  "version": "1.0.0",
+  "description": "Exercise 1.1: outputs a random string generated at startup together with a constantly updating timestamp.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "license": "MIT"
+}
