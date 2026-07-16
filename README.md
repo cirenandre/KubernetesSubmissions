@@ -14,3 +14,4 @@ run it.
 - 1.6. [todo-app](https://github.com/cirenandre/KubernetesSubmissions/tree/1.6/todo-app)
 - 1.7. [log_output](https://github.com/cirenandre/KubernetesSubmissions/tree/1.7/log_output)
 - 1.8. [todo-app](https://github.com/cirenandre/KubernetesSubmissions/tree/1.8/todo-app)
+- 1.9. [ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/1.9/ping-pong)
