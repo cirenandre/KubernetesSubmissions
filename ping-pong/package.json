@@ -1,0 +1,10 @@
+{
+  "name": "ping-pong",
+  "version": "1.0.0",
+  "description": "Exercise 1.9: responds with 'pong N' on /pingpong, incrementing an in-memory counter.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "license": "MIT"
+}
