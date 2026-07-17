@@ -25,3 +25,4 @@ run it.
 - 2.4. [todo-app & todo-backend](https://github.com/cirenandre/KubernetesSubmissions/tree/2.4)
 - 2.5. [log_output](https://github.com/cirenandre/KubernetesSubmissions/tree/2.5/log_output)
 - 2.6. [todo-app & todo-backend](https://github.com/cirenandre/KubernetesSubmissions/tree/2.6)
+- 2.7. [ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/2.7/ping-pong)
