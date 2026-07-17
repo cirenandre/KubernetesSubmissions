@@ -1,0 +1,10 @@
+{
+  "name": "todo-backend",
+  "version": "1.0.0",
+  "description": "Exercise 2.2: service that saves and serves todo items.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "license": "MIT"
+}

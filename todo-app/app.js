@@ -5,6 +5,7 @@ const path = require('path');
 const PORT = process.env.PORT || 3000;
 const IMAGE_PATH = process.env.IMAGE_PATH || '/usr/src/app/files/image.jpg';
 const IMAGE_CACHE_MS = 10 * 60 * 1000;
+const TODO_BACKEND_URL = process.env.TODO_BACKEND_URL || 'http://todo-backend-svc:3000/todos';
 
 async function getImage() {
   const isFresh =
@@ -21,10 +22,17 @@ async function getImage() {
   return fs.readFileSync(IMAGE_PATH);
 }
 
-const TODOS = ['Learn Kubernetes basics', 'Deploy application to cluster', 'Configure persistent volumes'];
+async function getTodos() {
+  try {
+    const response = await fetch(TODO_BACKEND_URL);
+    return await response.json();
+  } catch (err) {
+    return [];
+  }
+}
 
-function renderPage() {
-  const todoItems = TODOS.map((todo) => `<li>${todo}</li>`).join('');
+function renderPage(todos) {
+  const todoItems = todos.map((todo) => `<li>${todo}</li>`).join('');
 
   return `<!DOCTYPE html>
 <html>
@@ -43,8 +51,8 @@ function renderPage() {
 <body>
   <h1>Todo App</h1>
   <img src="/image" alt="random" />
-  <form>
-    <input type="text" maxlength="140" placeholder="Enter a new todo (max 140 characters)" />
+  <form action="/todos" method="POST">
+    <input type="text" name="todo" maxlength="140" placeholder="Enter a new todo (max 140 characters)" />
     <button type="submit">Send</button>
   </form>
   <h2>Todos</h2>
@@ -55,8 +63,9 @@ function renderPage() {
 
 const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && req.url === '/') {
+    const todos = await getTodos();
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.end(renderPage());
+    res.end(renderPage(todos));
     return;
   }
 
