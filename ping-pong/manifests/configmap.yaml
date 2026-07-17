@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ping-pong-config
+  namespace: exercises
+data:
+  POSTGRES_USER : "admin"
+  POSTGRES_DB : "pingpong"
