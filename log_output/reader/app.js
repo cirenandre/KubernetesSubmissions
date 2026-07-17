@@ -4,6 +4,8 @@ const fs = require('fs');
 const PORT = process.env.PORT || 3000;
 const FILE_PATH = process.env.FILE_PATH || '/usr/src/app/files/status.txt';
 const PING_PONG_URL = process.env.PING_PONG_URL || 'http://ping-pong-svc:3000/pings';
+const CONFIG_FILE_PATH = process.env.CONFIG_FILE_PATH || '/usr/src/app/config/information.txt';
+const MESSAGE = process.env.MESSAGE || '';
 
 async function getPingPongCount() {
   try {
@@ -17,9 +19,10 @@ async function getPingPongCount() {
 const server = http.createServer(async (req, res) => {
   const status = fs.existsSync(FILE_PATH) ? fs.readFileSync(FILE_PATH, 'utf-8').trim() : '';
   const count = await getPingPongCount();
+  const information = fs.existsSync(CONFIG_FILE_PATH) ? fs.readFileSync(CONFIG_FILE_PATH, 'utf-8').trim() : '';
 
   res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end(`${status}\nPing / Pongs: ${count}\n`);
+  res.end(`${status}\nPing / Pongs: ${count}\nMESSAGE: ${MESSAGE}\nFile content: ${information}\n`);
 });
 
 server.listen(PORT, () => {
