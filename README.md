@@ -19,3 +19,4 @@ run it.
 - 1.11. [log_output](https://github.com/cirenandre/KubernetesSubmissions/tree/1.11/log_output)
 - 1.12. [todo-app](https://github.com/cirenandre/KubernetesSubmissions/tree/1.12/todo-app)
 - 1.13. [todo-app](https://github.com/cirenandre/KubernetesSubmissions/tree/1.13/todo-app)
+- 2.1. [log_output & ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/2.1)
