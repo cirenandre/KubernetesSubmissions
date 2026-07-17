@@ -5,3 +5,5 @@ metadata:
   namespace: project
 data:
   TODO_MAX_LENGTH: "140"
+  POSTGRES_USER : "admin"
+  POSTGRES_DB : "tododb"

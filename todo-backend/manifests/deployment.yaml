@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: todo-backend-app
-          image: todo-backend-app:1.4
+          image: todo-backend-app:1.5
           imagePullPolicy: Never
           env:
             - name: PORT
@@ -25,3 +25,5 @@ spec:
           envFrom:
             - configMapRef:
                 name: todo-backend-config
+            - secretRef:
+                name: postgres-secret
