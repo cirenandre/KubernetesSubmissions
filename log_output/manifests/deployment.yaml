@@ -20,7 +20,7 @@ spec:
             claimName: log-output-pvc
       containers:
         - name: app-reader
-          image: reader:1.1
+          image: reader:1.2
           imagePullPolicy: Never
           volumeMounts: # Mount volume
           - name: shared-log-volume
