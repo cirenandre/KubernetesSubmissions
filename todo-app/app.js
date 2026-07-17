@@ -4,7 +4,9 @@ const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const IMAGE_PATH = process.env.IMAGE_PATH || '/usr/src/app/files/image.jpg';
-const IMAGE_CACHE_MS = 10 * 60 * 1000;
+const IMAGE_CACHE_MINUTES = process.env.IMAGE_CACHE_MINUTES || 10;
+const IMAGE_CACHE_MS = IMAGE_CACHE_MINUTES * 60 * 1000;
+const IMAGE_SOURCE_URL = process.env.IMAGE_SOURCE_URL || 'https://picsum.photos/1200';
 const TODO_BACKEND_URL = process.env.TODO_BACKEND_URL || 'http://todo-backend-svc:3000/todos';
 
 async function getImage() {
@@ -13,7 +15,7 @@ async function getImage() {
     Date.now() - fs.statSync(IMAGE_PATH).mtimeMs < IMAGE_CACHE_MS;
 
   if (!isFresh) {
-    const response = await fetch('https://picsum.photos/1200');
+    const response = await fetch(IMAGE_SOURCE_URL);
     const buffer = Buffer.from(await response.arrayBuffer());
     fs.mkdirSync(path.dirname(IMAGE_PATH), { recursive: true });
     fs.writeFileSync(IMAGE_PATH, buffer);

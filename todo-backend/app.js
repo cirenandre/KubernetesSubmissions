@@ -1,7 +1,7 @@
 const http = require('http');
 
 const PORT = process.env.PORT || 3000;
-const MAX_LENGTH = 140;
+const MAX_LENGTH = process.env.TODO_MAX_LENGTH || 140;
 
 let todos = ['Learn Kubernetes basics', 'Deploy application to cluster', 'Configure persistent volumes'];
 
