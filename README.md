@@ -21,3 +21,5 @@ run it.
 - 1.13. [todo-app](https://github.com/cirenandre/KubernetesSubmissions/tree/1.13/todo-app)
 - 2.1. [log_output & ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/2.1)
 - 2.2. [todo-app & todo-backend](https://github.com/cirenandre/KubernetesSubmissions/tree/2.2)
+- 2.3. [log_output & ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/2.3)
+- 2.4. [todo-app & todo-backend](https://github.com/cirenandre/KubernetesSubmissions/tree/2.4)
