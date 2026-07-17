@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: todo-backend-app
-          image: todo-backend-app:1.5
+          image: todo-backend-app:1.6
           imagePullPolicy: Never
           env:
             - name: PORT

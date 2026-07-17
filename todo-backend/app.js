@@ -49,6 +49,8 @@ function readBody(req) {
 }
 
 const server = http.createServer(async (req, res) => {
+  console.log(`${req.method} ${req.url}`);
+
   if (req.method === 'GET' && req.url === '/todos') {
     const { rows } = await pool.query('SELECT text FROM todos ORDER BY id');
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -59,9 +61,17 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'POST' && req.url === '/todos') {
     const body = await readBody(req);
     const params = new URLSearchParams(body);
-    const text = (params.get('todo') || '').trim().slice(0, MAX_LENGTH);
+    const text = (params.get('todo') || '').trim();
+
+    if (text.length > MAX_LENGTH) {
+      console.log(`Rejected todo, too long (${text.length} > ${MAX_LENGTH} characters): ${text}`);
+      res.writeHead(400, { 'Content-Type': 'text/plain' });
+      res.end(`Todo must be at most ${MAX_LENGTH} characters`);
+      return;
+    }
 
     if (text) {
+      console.log(`Creating todo: ${text}`);
       await pool.query('INSERT INTO todos (text) VALUES ($1)', [text]);
     }
 
