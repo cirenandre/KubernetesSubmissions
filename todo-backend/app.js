@@ -51,6 +51,12 @@ function readBody(req) {
 const server = http.createServer(async (req, res) => {
   console.log(`${req.method} ${req.url}`);
 
+  if (req.method === 'GET' && req.url === '/') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('ok');
+    return;
+  }
+
   if (req.method === 'GET' && req.url === '/todos') {
     const { rows } = await pool.query('SELECT text FROM todos ORDER BY id');
     res.writeHead(200, { 'Content-Type': 'application/json' });

@@ -1,14 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: todo-backend-svc
-  namespace: project
+  name: todo-app-svc
   labels:
-    app: todo-backend-app
+    app: todo-app
 spec:
   type: ClusterIP
   selector:
-    app: todo-backend-app
+    app: todo-app
   ports:
     - protocol: TCP
       port: 3000

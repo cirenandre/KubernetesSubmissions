@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: project
+
+resources:
+  - ../../base
+
+patches:
+  - path: patch-todo-postgres-pgdata.yaml
+
+images:
+  - name: todo-app
+    newName: cirenandre/todo-app
+    newTag: "1.0"
+  - name: todo-backend-app
+    newName: cirenandre/todo-backend
+    newTag: "1.1"
+  - name: todo-cron
+    newName: cirenandre/todo-cron
+    newTag: "1.0"

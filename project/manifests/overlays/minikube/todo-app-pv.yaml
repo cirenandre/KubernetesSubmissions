@@ -13,19 +13,3 @@ spec:
   storageClassName: ""
   hostPath:
     path: /mnt/data/todo-app
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: todo-app-pvc
-  namespace: project
-  labels:
-    app: todo-app
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: ""
-  resources:
-    requests:
-      storage: 1Gi

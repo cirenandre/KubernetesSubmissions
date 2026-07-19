@@ -2,7 +2,6 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: todo-cron
-  namespace: project
   labels:
     app: todo-cron
 spec:
@@ -17,5 +16,5 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: todo-cron
-              image: todo-cron:1.0
-              imagePullPolicy: Never
+              image: todo-cron
+              imagePullPolicy: IfNotPresent
