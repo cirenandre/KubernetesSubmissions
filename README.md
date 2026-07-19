@@ -29,3 +29,4 @@ run it.
 - 2.8. [todo-backend](https://github.com/cirenandre/KubernetesSubmissions/tree/2.8/todo-backend)
 - 2.9. [todo-cron](https://github.com/cirenandre/KubernetesSubmissions/tree/2.9/todo-cron)
 - 2.10. [todo-backend](https://github.com/cirenandre/KubernetesSubmissions/tree/2.10/todo-backend)
+- 3.1. [ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/3.1/ping-pong)
