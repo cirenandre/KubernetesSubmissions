@@ -1,0 +1,81 @@
+name: Release application
+
+on:
+  push:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  GKE_CLUSTER: dwk-cluster
+  GKE_ZONE: europe-north1-b
+  REGISTRY: europe-north1-docker.pkg.dev
+  REPOSITORY: dwk-repo
+  BRANCH: ${{ github.ref_name }}
+
+jobs:
+  build-publish-deploy:
+    name: Build, Publish and Deploy
+    runs-on: ubuntu-latest
+    environment: GKE_PROJECT
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: "${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}"
+          service_account: "${{ secrets.SERVICE_ACCOUNT }}"
+
+      - name: 'Set up Cloud SDK'
+        uses: google-github-actions/setup-gcloud@v3
+
+      - run: gcloud --quiet auth configure-docker $REGISTRY
+
+      - name: 'Get GKE credentials'
+        uses: 'google-github-actions/get-gke-credentials@v3'
+        with:
+          cluster_name: '${{ env.GKE_CLUSTER }}'
+          project_id: '${{ env.PROJECT_ID }}'
+          location: '${{ env.GKE_ZONE }}'
+
+      - name: 'Form the image names'
+        run: |
+          echo "IMAGE_TAG_APP=$REGISTRY/$PROJECT_ID/$REPOSITORY/todo-app:$BRANCH-$GITHUB_SHA" >> $GITHUB_ENV
+          echo "IMAGE_TAG_BACKEND=$REGISTRY/$PROJECT_ID/$REPOSITORY/todo-backend:$BRANCH-$GITHUB_SHA" >> $GITHUB_ENV
+          echo "IMAGE_TAG_CRON=$REGISTRY/$PROJECT_ID/$REPOSITORY/todo-cron:$BRANCH-$GITHUB_SHA" >> $GITHUB_ENV
+
+      - name: Build todo-app
+        run: docker build --tag $IMAGE_TAG_APP ./todo-app
+
+      - name: Build todo-backend
+        run: docker build --tag $IMAGE_TAG_BACKEND ./todo-backend
+
+      - name: Build todo-cron
+        run: docker build --tag $IMAGE_TAG_CRON ./todo-cron
+
+      - name: Publish todo-app
+        run: docker push $IMAGE_TAG_APP
+
+      - name: Publish todo-backend
+        run: docker push $IMAGE_TAG_BACKEND
+
+      - name: Publish todo-cron
+        run: docker push $IMAGE_TAG_CRON
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v3
+
+      - name: Deploy
+        working-directory: project/manifests/overlays/gke
+        run: |-
+          kustomize edit set image todo-app=$IMAGE_TAG_APP
+          kustomize edit set image todo-backend-app=$IMAGE_TAG_BACKEND
+          kustomize edit set image todo-cron=$IMAGE_TAG_CRON
+          kustomize build . | kubectl apply -f -
+          kubectl rollout status deployment/todo-app -n project
+          kubectl rollout status deployment/todo-backend-app -n project
+          kubectl get services -n project -o wide
