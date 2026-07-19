@@ -32,3 +32,4 @@ run it.
 - 3.1. [ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/3.1/ping-pong)
 - 3.2. [log_output & ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/3.2)
 - 3.3. [log_output & ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/3.3)
+- 3.4. [log_output & ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/3.4)
