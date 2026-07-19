@@ -1,3 +1,5 @@
 node_modules/
 *.log
 CLAUDE.md
+note.txt
+cicd-gcp-github-actions-setup.txt
