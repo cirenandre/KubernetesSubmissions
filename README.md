@@ -39,3 +39,4 @@ run it.
 - 3.8. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/3.8/project)
 - 3.9. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/3.9/project)
 - 3.10. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/3.10/project)
+- 3.11. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/3.11/project)
