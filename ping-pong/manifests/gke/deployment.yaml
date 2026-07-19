@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: ping-pong-app
-          image: cirenandre/ping-pong:1.0
+          image: cirenandre/ping-pong:1.1
           imagePullPolicy: IfNotPresent
           env:
             - name: PORT
