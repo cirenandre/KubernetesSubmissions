@@ -5,6 +5,7 @@ namespace: project
 
 resources:
   - ../../base
+  - todo-backup-cronjob.yaml
 
 patches:
   - path: patch-todo-postgres-pgdata.yaml
@@ -18,4 +19,7 @@ images:
     newTag: "1.1"
   - name: todo-cron
     newName: cirenandre/todo-cron
+    newTag: "1.0"
+  - name: todo-backup
+    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-backup
     newTag: "1.0"
