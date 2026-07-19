@@ -18,6 +18,13 @@ spec:
         - name: todo-backend-app
           image: todo-backend-app
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
           env:
             - name: PORT
               value: "3000"
