@@ -9,6 +9,21 @@ Deployed to GKE automatically via the GitHub Actions workflows in
 (named after the branch), `main` deploys to the `project` namespace, and
 deleting a branch tears down its namespace.
 
+## GKE Monitoring: application logs (Exercise 3.12)
+
+GKE clusters have Cloud Logging/Monitoring enabled by default (the
+`WORKLOADS` logging component was already active on `dwk-cluster`, no
+extra setup needed). Application `stdout`/`stderr` is automatically
+collected and viewable per-workload under **Kubernetes Engine →
+Workloads → <workload> → Logs**, or via **Logging → Logs Explorer**
+filtered by `resource.type="k8s_container"`.
+
+Below is the `todo-backend-app` log around a todo being created — the
+`POST /todos` request log immediately followed by the app's own
+`Creating todo: ...` line:
+
+![todo-backend-app logs showing a new todo being created](screenshots/todo-created-log.png)
+
 ## DBaaS vs DIY: Postgres (Exercise 3.9)
 
 We currently run Postgres ourselves inside the cluster as a StatefulSet
