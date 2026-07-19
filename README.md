@@ -31,3 +31,4 @@ run it.
 - 2.10. [todo-backend](https://github.com/cirenandre/KubernetesSubmissions/tree/2.10/todo-backend)
 - 3.1. [ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/3.1/ping-pong)
 - 3.2. [log_output & ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/3.2)
+- 3.3. [log_output & ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/3.3)
