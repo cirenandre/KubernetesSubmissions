@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ping-pong-app
+  labels:
+    app: ping-pong-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ping-pong-app
+  template:
+    metadata:
+      labels:
+        app: ping-pong-app
+    spec:
+      containers:
+        - name: ping-pong-app
+          image: cirenandre/ping-pong:1.0
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORT
+              value: "3000"
+          envFrom:
+            - configMapRef:
+                name: ping-pong-config
+            - secretRef:
+                name: postgres-secret
