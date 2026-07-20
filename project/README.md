@@ -5,10 +5,28 @@ for the course project: `todo-app`, `todo-backend`, `todo-postgres`,
 `todo-cron`, `nats`, and `broadcaster` (see `../broadcaster/README.md`). See
 each app's own directory for its source code and README.
 
-Deployed to GKE automatically via the GitHub Actions workflows in
-`.github/workflows/`: every branch gets deployed into its own namespace
-(named after the branch), `main` deploys to the `project` namespace, and
-deleting a branch tears down its namespace.
+Deployed to GKE via the GitHub Actions workflows in `.github/workflows/`:
+feature branches get deployed directly into their own namespace (named after
+the branch, torn down when the branch is deleted). `main` uses GitOps
+instead (Exercise 4.8, see below).
+
+## GitOps for main (Exercise 4.8)
+
+Pushes to `main` no longer deploy directly. `.github/workflows/main.yaml`
+still builds and pushes SHA-tagged images, but for `main` it only runs
+`kustomize edit set image` in `manifests/overlays/gke` and commits the
+updated `kustomization.yaml` back to the repo (using the workflow's default
+`GITHUB_TOKEN`, so it doesn't re-trigger itself).
+
+ArgoCD (`manifests/argocd/application.yaml`, same ArgoCD instance used for
+`log_output`) watches that path on `main` and auto-syncs the `project`
+namespace whenever the commit lands — no `kubectl apply` involved. Feature
+branches keep the old direct-apply flow unchanged, since the exercise only
+requires GitOps for `main`.
+
+```bash
+kubectl apply -f manifests/argocd/application.yaml
+```
 
 ## Todo status broadcasting (Exercise 4.6)
 

@@ -12,17 +12,17 @@ patches:
 
 images:
   - name: todo-app
-    newName: cirenandre/todo-app
-    newTag: "1.0"
+    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-app
+    newTag: "main-143c8cce7799590df28f848662575ebe64bf3a49"
   - name: todo-backend-app
-    newName: cirenandre/todo-backend
-    newTag: "1.1"
+    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-backend
+    newTag: "main-143c8cce7799590df28f848662575ebe64bf3a49"
   - name: todo-cron
-    newName: cirenandre/todo-cron
-    newTag: "1.0"
+    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-cron
+    newTag: "main-143c8cce7799590df28f848662575ebe64bf3a49"
   - name: todo-backup
     newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-backup
     newTag: "1.0"
   - name: broadcaster
     newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/broadcaster
-    newTag: "1.0"
+    newTag: "main-143c8cce7799590df28f848662575ebe64bf3a49"

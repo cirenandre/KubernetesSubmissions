@@ -6,7 +6,7 @@ on:
       - '**'
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 env:
@@ -38,6 +38,7 @@ jobs:
       - run: gcloud --quiet auth configure-docker $REGISTRY
 
       - name: 'Get GKE credentials'
+        if: github.ref_name != 'main'
         uses: 'google-github-actions/get-gke-credentials@v3'
         with:
           cluster_name: '${{ env.GKE_CLUSTER }}'
@@ -75,29 +76,41 @@ jobs:
       - name: Publish broadcaster
         run: docker push $IMAGE_TAG_BROADCASTER
 
-      - name: 'Determine namespace'
-        run: |
-          if [ "$BRANCH" = "main" ]; then
-            echo "NAMESPACE=project" >> $GITHUB_ENV
-          else
-            echo "NAMESPACE=$BRANCH" >> $GITHUB_ENV
-          fi
-
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v3
 
-      - name: Deploy
+      - name: 'Deploy to branch namespace (feature branches only)'
+        if: github.ref_name != 'main'
         working-directory: project/manifests/overlays/gke
         run: |-
-          kubectl create namespace $NAMESPACE || true
-          kubectl config set-context --current --namespace=$NAMESPACE
-          kustomize edit set namespace $NAMESPACE
+          kubectl create namespace $BRANCH || true
+          kubectl config set-context --current --namespace=$BRANCH
+          kustomize edit set namespace $BRANCH
           kustomize edit set image todo-app=$IMAGE_TAG_APP
           kustomize edit set image todo-backend-app=$IMAGE_TAG_BACKEND
           kustomize edit set image todo-cron=$IMAGE_TAG_CRON
           kustomize edit set image broadcaster=$IMAGE_TAG_BROADCASTER
           kustomize build . | kubectl apply -f -
-          kubectl rollout status deployment/todo-app -n $NAMESPACE
-          kubectl rollout status deployment/todo-backend-app -n $NAMESPACE
-          kubectl rollout status deployment/broadcaster -n $NAMESPACE
-          kubectl get services -n $NAMESPACE -o wide
+          kubectl rollout status deployment/todo-app -n $BRANCH
+          kubectl rollout status deployment/todo-backend-app -n $BRANCH
+          kubectl rollout status deployment/broadcaster -n $BRANCH
+          kubectl get services -n $BRANCH -o wide
+
+      # GitOps: main is not deployed directly here. Instead, the image tags
+      # are committed back to the repo, and ArgoCD (watching this path on
+      # main) picks up the commit and syncs the cluster automatically.
+      - name: 'Update image tags for GitOps (main only)'
+        if: github.ref_name == 'main'
+        working-directory: project/manifests/overlays/gke
+        run: |-
+          kustomize edit set image todo-app=$IMAGE_TAG_APP
+          kustomize edit set image todo-backend-app=$IMAGE_TAG_BACKEND
+          kustomize edit set image todo-cron=$IMAGE_TAG_CRON
+          kustomize edit set image broadcaster=$IMAGE_TAG_BROADCASTER
+
+      - name: 'Commit kustomization.yaml to GitHub (main only)'
+        if: github.ref_name == 'main'
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: 'project/manifests/overlays/gke/kustomization.yaml'
+          message: "New project version released ${{ github.sha }}"
