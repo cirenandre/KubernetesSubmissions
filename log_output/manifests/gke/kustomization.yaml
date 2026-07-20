@@ -14,7 +14,7 @@ resources:
 images:
 - name: log-output-reader
   newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/log-output-reader
-  newTag: b7b4a12cb8a7378c0cb93dd603097561a35058f6
+  newTag: edcf752bd0365f3163832b367fd7d161d349cb4a
 - name: log-output-writer
   newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/log-output-writer
-  newTag: b7b4a12cb8a7378c0cb93dd603097561a35058f6
+  newTag: edcf752bd0365f3163832b367fd7d161d349cb4a
