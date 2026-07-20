@@ -13,3 +13,7 @@ resources:
   - todo-backend-service.yaml
   - todo-postgres.yaml
   - todo-cron-cronjob.yaml
+  - nats.yaml
+  - broadcaster-configmap.yaml
+  - broadcaster-secret.yaml
+  - broadcaster-deployment.yaml

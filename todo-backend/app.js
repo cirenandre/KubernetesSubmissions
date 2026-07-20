@@ -1,8 +1,11 @@
 const http = require('http');
 const { Pool } = require('pg');
+const { connect, StringCodec } = require('nats');
 
 const PORT = process.env.PORT || 3000;
 const MAX_LENGTH = process.env.TODO_MAX_LENGTH || 140;
+const NATS_URL = process.env.NATS_URL || 'nats://nats-svc:4222';
+const NATS_SUBJECT = process.env.NATS_SUBJECT || 'todos';
 
 const pool = new Pool({
   host: process.env.POSTGRES_HOST || 'todo-postgres-svc',
@@ -11,6 +14,27 @@ const pool = new Pool({
   user: process.env.POSTGRES_USER || 'postgres',
   password: process.env.POSTGRES_PASSWORD || 'postgres',
 });
+
+const sc = StringCodec();
+let natsConnection = null;
+
+async function connectNats() {
+  while (true) {
+    try {
+      natsConnection = await connect({ servers: NATS_URL });
+      console.log('Connected to NATS');
+      return;
+    } catch (err) {
+      console.log('Waiting for NATS...', err.message);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+  }
+}
+
+function publishTodoEvent(event, text) {
+  if (!natsConnection) return;
+  natsConnection.publish(NATS_SUBJECT, sc.encode(JSON.stringify({ event, text })));
+}
 
 const DEFAULT_TODOS = ['Learn Kubernetes basics', 'Deploy application to cluster', 'Configure persistent volumes'];
 
@@ -81,7 +105,10 @@ const server = http.createServer(async (req, res) => {
   if (putMatch) {
     const id = putMatch[1];
     console.log(`Marking todo ${id} as done`);
-    await pool.query('UPDATE todos SET done = TRUE WHERE id = $1', [id]);
+    const { rows } = await pool.query('UPDATE todos SET done = TRUE WHERE id = $1 RETURNING text', [id]);
+    if (rows[0]) {
+      publishTodoEvent('updated', rows[0].text);
+    }
     res.writeHead(204);
     res.end();
     return;
@@ -102,6 +129,7 @@ const server = http.createServer(async (req, res) => {
     if (text) {
       console.log(`Creating todo: ${text}`);
       await pool.query('INSERT INTO todos (text) VALUES ($1)', [text]);
+      publishTodoEvent('created', text);
     }
 
     res.writeHead(303, { Location: '/' });
@@ -113,6 +141,7 @@ const server = http.createServer(async (req, res) => {
   res.end('Not found');
 });
 
+connectNats();
 waitForDb().then(() => {
   server.listen(PORT, () => {
     console.log(`Server started in port ${PORT}`);

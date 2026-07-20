@@ -23,3 +23,6 @@ images:
   - name: todo-backup
     newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-backup
     newTag: "1.0"
+  - name: broadcaster
+    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/broadcaster
+    newTag: "1.0"

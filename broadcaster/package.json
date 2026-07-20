@@ -1,0 +1,13 @@
+{
+  "name": "broadcaster",
+  "version": "1.0.0",
+  "description": "Exercise 4.6: subscribes to NATS todo events and forwards them to an external chat service.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "nats": "^2.28.0"
+  }
+}

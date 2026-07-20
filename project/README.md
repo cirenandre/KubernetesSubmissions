@@ -1,13 +1,24 @@
 # The project
 
 Kustomize configuration (`manifests/base` + `manifests/overlays/{minikube,gke}`)
-for the course project: `todo-app`, `todo-backend`, `todo-postgres`, and
-`todo-cron`. See each app's own directory for its source code and README.
+for the course project: `todo-app`, `todo-backend`, `todo-postgres`,
+`todo-cron`, `nats`, and `broadcaster` (see `../broadcaster/README.md`). See
+each app's own directory for its source code and README.
 
 Deployed to GKE automatically via the GitHub Actions workflows in
 `.github/workflows/`: every branch gets deployed into its own namespace
 (named after the branch), `main` deploys to the `project` namespace, and
 deleting a branch tears down its namespace.
+
+## Todo status broadcasting (Exercise 4.6)
+
+`todo-backend` publishes a message to NATS (subject `todos`) whenever a
+todo is created or marked done. The `broadcaster` service subscribes to
+that subject using a NATS queue group, so it can be scaled to any number
+of replicas without ever delivering the same message twice — verified at
+6 replicas on the live cluster, where 3 new todos were each handled by
+exactly one of the 6 pods. It forwards each event to an external webhook
+as `{"user": "bot", "message": "..."}`.
 
 ## GKE Monitoring: application logs (Exercise 3.12)
 
