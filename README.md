@@ -43,3 +43,4 @@ run it.
 - 3.12. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/3.12/project)
 - 4.1. [log_output & ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/4.1)
 - 4.2. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/4.2/project)
+- 4.3. [monitoring](https://github.com/cirenandre/KubernetesSubmissions/tree/4.3/monitoring)
