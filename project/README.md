@@ -1,32 +1,70 @@
 # The project
 
-Kustomize configuration (`manifests/base` + `manifests/overlays/{minikube,gke}`)
-for the course project: `todo-app`, `todo-backend`, `todo-postgres`,
-`todo-cron`, `nats`, and `broadcaster` (see `../broadcaster/README.md`). See
-each app's own directory for its source code and README.
+Kustomize configuration (`manifests/base` +
+`manifests/overlays/{minikube,staging,production}`) for the course project:
+`todo-app`, `todo-backend`, `todo-postgres`, `todo-cron`, `nats`, and
+`broadcaster` (see `../broadcaster/README.md`). See each app's own directory
+for its source code and README.
 
 Deployed to GKE via the GitHub Actions workflows in `.github/workflows/`:
 feature branches get deployed directly into their own namespace (named after
-the branch, torn down when the branch is deleted). `main` uses GitOps
-instead (Exercise 4.8, see below).
+the branch, torn down when the branch is deleted); `main` and tagged
+commits use GitOps into `staging`/`production` (Exercises 4.8–4.9, below).
+
+## Staging and production environments (Exercise 4.9)
+
+Two separate namespaces, each with its own Kustomize overlay and ArgoCD
+`Application`:
+
+- **`staging`** (`manifests/overlays/staging`,
+  `manifests/argocd/staging-application.yaml`) — every push to `main`
+  builds new images, commits the updated tags to
+  `overlays/staging/kustomization.yaml`, and ArgoCD auto-syncs. The
+  `broadcaster` here has `FORWARD_ENABLED=false` (see
+  `patch-broadcaster-log-only.yaml`) — it logs every NATS message but never
+  calls the external webhook. There's no `todo-backup` CronJob — staging's
+  database isn't backed up.
+- **`production`** (`manifests/overlays/production`,
+  `manifests/argocd/production-application.yaml`) — deployed only by tags
+  matching `prod-*`, via `.github/workflows/production.yaml`. Since tags are
+  immutable, that workflow checks out `main` (not the tag) to build from and
+  commits the image-tag update to `overlays/production/kustomization.yaml`
+  on `main` — ArgoCD watches that path (still on `main`, distinguished from
+  staging only by directory) and syncs the `production` namespace. Includes
+  the `todo-backup` CronJob and forwards broadcaster messages normally.
+
+Cut a production release with:
+
+```bash
+git tag prod-1.0
+git push origin prod-1.0
+```
+
+Secrets (`postgres-secret`, `broadcaster-secret`, see `manifests/secrets/`)
+are applied manually per namespace rather than tracked by ArgoCD:
+
+```bash
+kubectl apply -f manifests/secrets/ -n staging
+kubectl apply -f manifests/secrets/ -n production
+```
+
+Bootstrap both Applications with:
+
+```bash
+kubectl apply -f manifests/argocd/staging-application.yaml
+kubectl apply -f manifests/argocd/production-application.yaml
+```
 
 ## GitOps for main (Exercise 4.8)
 
 Pushes to `main` no longer deploy directly. `.github/workflows/main.yaml`
 still builds and pushes SHA-tagged images, but for `main` it only runs
-`kustomize edit set image` in `manifests/overlays/gke` and commits the
+`kustomize edit set image` in `manifests/overlays/staging` and commits the
 updated `kustomization.yaml` back to the repo (using the workflow's default
-`GITHUB_TOKEN`, so it doesn't re-trigger itself).
-
-ArgoCD (`manifests/argocd/application.yaml`, same ArgoCD instance used for
-`log_output`) watches that path on `main` and auto-syncs the `project`
-namespace whenever the commit lands — no `kubectl apply` involved. Feature
-branches keep the old direct-apply flow unchanged, since the exercise only
-requires GitOps for `main`.
-
-```bash
-kubectl apply -f manifests/argocd/application.yaml
-```
+`GITHUB_TOKEN`, so it doesn't re-trigger itself). ArgoCD watches that path
+on `main` and auto-syncs — no `kubectl apply` involved. Feature branches
+keep the old direct-apply flow unchanged, since the exercise only required
+GitOps for `main`.
 
 ## Todo status broadcasting (Exercise 4.6)
 
