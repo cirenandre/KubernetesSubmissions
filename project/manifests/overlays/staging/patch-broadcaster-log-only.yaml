@@ -1,6 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: broadcaster-config
-data:
-  FORWARD_ENABLED: "false"

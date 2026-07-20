@@ -6,7 +6,7 @@ on:
       - 'prod-*'
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
 
 env:
@@ -14,6 +14,7 @@ env:
   REGISTRY: europe-north1-docker.pkg.dev
   REPOSITORY: dwk-repo
   TAG: ${{ github.ref_name }}
+  CONFIG_REPO: cirenandre/KubernetesSubmissions-config
 
 jobs:
   build-publish:
@@ -74,19 +75,31 @@ jobs:
       - name: Set up Kustomize
         uses: imranismail/setup-kustomize@v3
 
-      # Tags are immutable, so the manifest update commits to main instead
-      # of the tag itself. ArgoCD's production Application watches this
-      # path on main and syncs the production namespace automatically.
+      # The Kustomize configuration lives in a separate repo (Exercise
+      # 4.10), checked out at its main branch (tags are immutable, so the
+      # manifest-update commit has to land on a real branch there).
+      - name: Checkout config repo
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.CONFIG_REPO }}
+          token: ${{ secrets.CONFIG_REPO_TOKEN }}
+          path: config-repo
+          ref: main
+
+      # ArgoCD's production Application watches this path on the config
+      # repo's main branch and syncs the production namespace automatically.
       - name: Update image tags for GitOps
-        working-directory: project/manifests/overlays/production
+        working-directory: config-repo/overlays/production
         run: |-
           kustomize edit set image todo-app=$IMAGE_TAG_APP
           kustomize edit set image todo-backend-app=$IMAGE_TAG_BACKEND
           kustomize edit set image todo-cron=$IMAGE_TAG_CRON
           kustomize edit set image broadcaster=$IMAGE_TAG_BROADCASTER
 
-      - name: Commit kustomization.yaml to GitHub
+      - name: Commit kustomization.yaml to config repo
         uses: EndBug/add-and-commit@v10
         with:
-          add: 'project/manifests/overlays/production/kustomization.yaml'
-          message: "New production version released ${{ github.ref_name }}"
+          cwd: config-repo
+          add: 'overlays/production/kustomization.yaml'
+          message: "New production version released ${{ github.ref_name }} from ${{ github.repository }}"
+          github_token: ${{ secrets.CONFIG_REPO_TOKEN }}

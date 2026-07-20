@@ -1,37 +1,56 @@
 # The project
 
-Kustomize configuration (`manifests/base` +
-`manifests/overlays/{minikube,staging,production}`) for the course project:
-`todo-app`, `todo-backend`, `todo-postgres`, `todo-cron`, `nats`, and
-`broadcaster` (see `../broadcaster/README.md`). See each app's own directory
-for its source code and README.
+The course project: `todo-app`, `todo-backend`, `todo-cron`, and
+`broadcaster` (see each app's own directory for its source code and
+README). NATS and Postgres are off-the-shelf images.
+
+Since Exercise 4.10, the Kubernetes/Kustomize configuration lives in a
+**separate repository**,
+[`KubernetesSubmissions-config`](https://github.com/cirenandre/KubernetesSubmissions-config)
+— this repo has no `project/manifests/` directory anymore. CI here builds
+and publishes images, then pushes the image-tag update as a commit to that
+other repo; ArgoCD watches it and syncs the cluster. The config repo is the
+single source of truth for what's actually deployed.
 
 Deployed to GKE via the GitHub Actions workflows in `.github/workflows/`:
 feature branches get deployed directly into their own namespace (named after
 the branch, torn down when the branch is deleted); `main` and tagged
 commits use GitOps into `staging`/`production` (Exercises 4.8–4.9, below).
 
+## Separate config repo (Exercise 4.10)
+
+`.github/workflows/main.yaml` and `production.yaml` each check out
+`cirenandre/KubernetesSubmissions-config` into a `config-repo/` subdirectory
+using `CONFIG_REPO_TOKEN` — a fine-grained PAT scoped only to that repo with
+`Contents: Read and write` — since the default `GITHUB_TOKEN` can only act
+within the repo a workflow runs in, never another repo. They then run
+`kustomize edit set image` and commit inside `config-repo/`, pushing there
+instead of here.
+
+This also means feature-branch ephemeral deploys now build their Kustomize
+base from the config repo too (still applied directly with `kubectl`, not
+through ArgoCD).
+
 ## Staging and production environments (Exercise 4.9)
 
-Two separate namespaces, each with its own Kustomize overlay and ArgoCD
-`Application`:
+Two separate namespaces, each with its own Kustomize overlay (in the config
+repo) and ArgoCD `Application`:
 
-- **`staging`** (`manifests/overlays/staging`,
-  `manifests/argocd/staging-application.yaml`) — every push to `main`
-  builds new images, commits the updated tags to
-  `overlays/staging/kustomization.yaml`, and ArgoCD auto-syncs. The
-  `broadcaster` here has `FORWARD_ENABLED=false` (see
+- **`staging`** (`overlays/staging`, `argocd/staging-application.yaml`) —
+  every push to `main` here builds new images, commits the updated tags to
+  `overlays/staging/kustomization.yaml` in the config repo, and ArgoCD
+  auto-syncs. The `broadcaster` here has `FORWARD_ENABLED=false` (see
   `patch-broadcaster-log-only.yaml`) — it logs every NATS message but never
   calls the external webhook. There's no `todo-backup` CronJob — staging's
   database isn't backed up.
-- **`production`** (`manifests/overlays/production`,
-  `manifests/argocd/production-application.yaml`) — deployed only by tags
-  matching `prod-*`, via `.github/workflows/production.yaml`. Since tags are
-  immutable, that workflow checks out `main` (not the tag) to build from and
+- **`production`** (`overlays/production`,
+  `argocd/production-application.yaml`) — deployed only by tags matching
+  `prod-*` on this repo, via `.github/workflows/production.yaml`. Since
+  tags are immutable, that workflow builds from `main` (not the tag) and
   commits the image-tag update to `overlays/production/kustomization.yaml`
-  on `main` — ArgoCD watches that path (still on `main`, distinguished from
-  staging only by directory) and syncs the `production` namespace. Includes
-  the `todo-backup` CronJob and forwards broadcaster messages normally.
+  on the config repo's `main` branch — ArgoCD watches that path there and
+  syncs the `production` namespace. Includes the `todo-backup` CronJob and
+  forwards broadcaster messages normally.
 
 Cut a production release with:
 
@@ -40,31 +59,31 @@ git tag prod-1.0
 git push origin prod-1.0
 ```
 
-Secrets (`postgres-secret`, `broadcaster-secret`, see `manifests/secrets/`)
-are applied manually per namespace rather than tracked by ArgoCD:
+Secrets (`postgres-secret`, `broadcaster-secret`, see `secrets/` in the
+config repo) are applied manually per namespace rather than tracked by
+ArgoCD:
 
 ```bash
-kubectl apply -f manifests/secrets/ -n staging
-kubectl apply -f manifests/secrets/ -n production
+kubectl apply -f secrets/ -n staging
+kubectl apply -f secrets/ -n production
 ```
 
 Bootstrap both Applications with:
 
 ```bash
-kubectl apply -f manifests/argocd/staging-application.yaml
-kubectl apply -f manifests/argocd/production-application.yaml
+kubectl apply -f argocd/staging-application.yaml
+kubectl apply -f argocd/production-application.yaml
 ```
 
 ## GitOps for main (Exercise 4.8)
 
 Pushes to `main` no longer deploy directly. `.github/workflows/main.yaml`
 still builds and pushes SHA-tagged images, but for `main` it only runs
-`kustomize edit set image` in `manifests/overlays/staging` and commits the
-updated `kustomization.yaml` back to the repo (using the workflow's default
-`GITHUB_TOKEN`, so it doesn't re-trigger itself). ArgoCD watches that path
-on `main` and auto-syncs — no `kubectl apply` involved. Feature branches
-keep the old direct-apply flow unchanged, since the exercise only required
-GitOps for `main`.
+`kustomize edit set image` (in the config repo, see 4.10 above) and commits
+the updated `kustomization.yaml` there. ArgoCD watches that path and
+auto-syncs — no `kubectl apply` involved. Feature branches keep the old
+direct-apply flow unchanged, since the exercise only required GitOps for
+`main`.
 
 ## Todo status broadcasting (Exercise 4.6)
 
@@ -95,7 +114,7 @@ Below is the `todo-backend-app` log around a todo being created — the
 
 We currently run Postgres ourselves inside the cluster as a StatefulSet
 backed by a dynamically-provisioned PersistentVolumeClaim (see
-`manifests/base/todo-postgres.yaml`) — this is the "DIY" approach. The
+`base/todo-postgres.yaml` in the config repo) — this is the "DIY" approach. The
 alternative would be a Database as a Service, e.g. Google Cloud SQL for
 PostgreSQL. Comparison below.
 
