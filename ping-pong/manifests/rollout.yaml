@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
   name: ping-pong-app
   namespace: exercises
@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: ping-pong-app
-          image: ping-pong-app:1.3
+          image: ping-pong-app:1.8
           imagePullPolicy: Never
           env:
             - name: PORT
@@ -27,3 +27,17 @@ spec:
                 name: ping-pong-config
             - secretRef:
                 name: postgres-secret
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+  strategy:
+    canary:
+      steps:
+        - setWeight: 50
+        - analysis:
+            templates:
+              - templateName: cpu-usage
+        - setWeight: 100
