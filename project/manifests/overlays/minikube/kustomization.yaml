@@ -5,6 +5,8 @@ namespace: project
 
 resources:
   - ../../base
+  - ../../secrets/todo-backend-secret.yaml
+  - ../../secrets/broadcaster-secret.yaml
   - todo-app-pv.yaml
 
 patches:

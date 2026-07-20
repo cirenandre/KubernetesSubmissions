@@ -81,7 +81,7 @@ jobs:
 
       - name: 'Deploy to branch namespace (feature branches only)'
         if: github.ref_name != 'main'
-        working-directory: project/manifests/overlays/gke
+        working-directory: project/manifests/overlays/staging
         run: |-
           kubectl create namespace $BRANCH || true
           kubectl config set-context --current --namespace=$BRANCH
@@ -96,12 +96,13 @@ jobs:
           kubectl rollout status deployment/broadcaster -n $BRANCH
           kubectl get services -n $BRANCH -o wide
 
-      # GitOps: main is not deployed directly here. Instead, the image tags
-      # are committed back to the repo, and ArgoCD (watching this path on
-      # main) picks up the commit and syncs the cluster automatically.
+      # GitOps: main deploys to staging only. Production deploys are
+      # handled by production.yaml, triggered on prod-* tags. The image
+      # tags are committed back to the repo, and ArgoCD (watching this
+      # path on main) picks up the commit and syncs staging automatically.
       - name: 'Update image tags for GitOps (main only)'
         if: github.ref_name == 'main'
-        working-directory: project/manifests/overlays/gke
+        working-directory: project/manifests/overlays/staging
         run: |-
           kustomize edit set image todo-app=$IMAGE_TAG_APP
           kustomize edit set image todo-backend-app=$IMAGE_TAG_BACKEND
@@ -112,5 +113,5 @@ jobs:
         if: github.ref_name == 'main'
         uses: EndBug/add-and-commit@v10
         with:
-          add: 'project/manifests/overlays/gke/kustomization.yaml'
-          message: "New project version released ${{ github.sha }}"
+          add: 'project/manifests/overlays/staging/kustomization.yaml'
+          message: "New staging version released ${{ github.sha }}"

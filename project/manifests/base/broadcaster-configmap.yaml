@@ -6,3 +6,4 @@ data:
   NATS_URL: "nats://nats-svc:4222"
   NATS_SUBJECT: "todos"
   NATS_QUEUE_GROUP: "broadcaster"
+  FORWARD_ENABLED: "true"

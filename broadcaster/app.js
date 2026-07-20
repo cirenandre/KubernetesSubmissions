@@ -6,6 +6,7 @@ const NATS_URL = process.env.NATS_URL || 'nats://nats-svc:4222';
 const NATS_SUBJECT = process.env.NATS_SUBJECT || 'todos';
 const NATS_QUEUE_GROUP = process.env.NATS_QUEUE_GROUP || 'broadcaster';
 const WEBHOOK_URL = process.env.WEBHOOK_URL;
+const FORWARD_ENABLED = process.env.FORWARD_ENABLED !== 'false';
 
 const sc = StringCodec();
 let connected = false;
@@ -17,6 +18,11 @@ function messageFor(event, text) {
 }
 
 async function sendToWebhook(message) {
+  if (!FORWARD_ENABLED) {
+    console.log(`Message (not forwarded): ${message}`);
+    return;
+  }
+
   if (!WEBHOOK_URL) {
     console.log('WEBHOOK_URL not set, skipping send:', message);
     return;

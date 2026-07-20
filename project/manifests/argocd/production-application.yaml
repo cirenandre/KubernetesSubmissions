@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: project
+  name: project-production
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/cirenandre/KubernetesSubmissions.git
     targetRevision: main
-    path: project/manifests/overlays/gke
+    path: project/manifests/overlays/production
   destination:
     server: https://kubernetes.default.svc
-    namespace: project
+    namespace: production
   syncPolicy:
     automated:
       prune: true
