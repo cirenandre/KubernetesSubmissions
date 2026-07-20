@@ -4,17 +4,17 @@ kind: Kustomization
 namespace: exercises
 
 resources:
-  - configmap.yaml
-  - deployment.yaml
-  - service.yaml
-  - volume.yaml
-  - gateway.yaml
-  - httproute.yaml
+- configmap.yaml
+- deployment.yaml
+- service.yaml
+- volume.yaml
+- gateway.yaml
+- httproute.yaml
 
 images:
-  - name: log-output-reader
-    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/log-output-reader
-    newTag: "1.0"
-  - name: log-output-writer
-    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/log-output-writer
-    newTag: "1.0"
+- name: log-output-reader
+  newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/log-output-reader
+  newTag: 94bf57f4bde2bcdc6c2ab2169e5cb4a948f45be5
+- name: log-output-writer
+  newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/log-output-writer
+  newTag: 94bf57f4bde2bcdc6c2ab2169e5cb4a948f45be5
