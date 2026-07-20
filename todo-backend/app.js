@@ -15,7 +15,8 @@ const pool = new Pool({
 const DEFAULT_TODOS = ['Learn Kubernetes basics', 'Deploy application to cluster', 'Configure persistent volumes'];
 
 async function initDb() {
-  await pool.query('CREATE TABLE IF NOT EXISTS todos (id SERIAL PRIMARY KEY, text TEXT NOT NULL)');
+  await pool.query('CREATE TABLE IF NOT EXISTS todos (id SERIAL PRIMARY KEY, text TEXT NOT NULL, done BOOLEAN NOT NULL DEFAULT FALSE)');
+  await pool.query('ALTER TABLE todos ADD COLUMN IF NOT EXISTS done BOOLEAN NOT NULL DEFAULT FALSE');
 
   const { rows } = await pool.query('SELECT COUNT(*) FROM todos');
   if (Number(rows[0].count) === 0) {
@@ -70,9 +71,19 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === 'GET' && req.url === '/todos') {
-    const { rows } = await pool.query('SELECT text FROM todos ORDER BY id');
+    const { rows } = await pool.query('SELECT id, text, done FROM todos ORDER BY id');
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(rows.map((row) => row.text)));
+    res.end(JSON.stringify(rows));
+    return;
+  }
+
+  const putMatch = req.method === 'PUT' && req.url.match(/^\/todos\/(\d+)$/);
+  if (putMatch) {
+    const id = putMatch[1];
+    console.log(`Marking todo ${id} as done`);
+    await pool.query('UPDATE todos SET done = TRUE WHERE id = $1', [id]);
+    res.writeHead(204);
+    res.end();
     return;
   }
 

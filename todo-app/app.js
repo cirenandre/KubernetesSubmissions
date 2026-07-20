@@ -36,7 +36,14 @@ async function getTodos() {
 }
 
 function renderPage(todos) {
-  const todoItems = todos.map((todo) => `<li>${todo}</li>`).join('');
+  const todoItems = todos
+    .map((todo) => {
+      if (todo.done) {
+        return `<li class="done"><span class="todo-text">${todo.text}</span><span class="done-label">Done</span></li>`;
+      }
+      return `<li><span class="todo-text">${todo.text}</span><form action="/mark-done/${todo.id}" method="POST"><button type="submit" class="done-btn">Mark done</button></form></li>`;
+    })
+    .join('');
 
   return `<!DOCTYPE html>
 <html>
@@ -49,7 +56,12 @@ function renderPage(todos) {
     input { flex: 1; padding: 0.5rem; font-size: 1rem; }
     button { padding: 0.5rem 1rem; font-size: 1rem; background: #4caf50; color: white; border: none; border-radius: 4px; }
     ul { list-style: none; padding: 0; text-align: left; }
-    li { background: #f5f5f5; border-left: 4px solid #4caf50; padding: 0.75rem; margin-bottom: 0.5rem; }
+    li { background: #f5f5f5; border-left: 4px solid #4caf50; padding: 0.75rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+    li.done { border-left-color: #9e9e9e; }
+    li.done .todo-text { text-decoration: line-through; color: #757575; }
+    li form { margin: 0; }
+    .done-btn { background: #2196f3; }
+    .done-label { color: #2e7d32; font-weight: bold; }
     .break-btn { background: #d9534f; margin-top: 1rem; }
   </style>
 </head>
@@ -114,6 +126,15 @@ const server = http.createServer(async (req, res) => {
     const todos = await getTodos();
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(renderPage(todos));
+    return;
+  }
+
+  const doneMatch = req.method === 'POST' && req.url.match(/^\/mark-done\/(\d+)$/);
+  if (doneMatch) {
+    const id = doneMatch[1];
+    await fetch(`${TODO_BACKEND_URL}/${id}`, { method: 'PUT' });
+    res.writeHead(303, { Location: '/' });
+    res.end();
     return;
   }
 
