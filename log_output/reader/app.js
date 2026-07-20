@@ -16,7 +16,27 @@ async function getPingPongCount() {
   }
 }
 
+async function canReachPingPong() {
+  try {
+    const response = await fetch(PING_PONG_URL);
+    return response.ok;
+  } catch (err) {
+    return false;
+  }
+}
+
 const server = http.createServer(async (req, res) => {
+  if (req.method === 'GET' && req.url === '/readyz') {
+    if (await canReachPingPong()) {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('OK');
+    } else {
+      res.writeHead(503, { 'Content-Type': 'text/plain' });
+      res.end('Ping-pong unavailable');
+    }
+    return;
+  }
+
   const status = fs.existsSync(FILE_PATH) ? fs.readFileSync(FILE_PATH, 'utf-8').trim() : '';
   const count = await getPingPongCount();
   const information = fs.existsSync(CONFIG_FILE_PATH) ? fs.readFileSync(CONFIG_FILE_PATH, 'utf-8').trim() : '';
