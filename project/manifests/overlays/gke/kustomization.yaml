@@ -4,25 +4,25 @@ kind: Kustomization
 namespace: project
 
 resources:
-  - ../../base
-  - todo-backup-cronjob.yaml
+- ../../base
+- todo-backup-cronjob.yaml
 
 patches:
-  - path: patch-todo-postgres-pgdata.yaml
+- path: patch-todo-postgres-pgdata.yaml
 
 images:
-  - name: todo-app
-    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-app
-    newTag: "main-143c8cce7799590df28f848662575ebe64bf3a49"
-  - name: todo-backend-app
-    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-backend
-    newTag: "main-143c8cce7799590df28f848662575ebe64bf3a49"
-  - name: todo-cron
-    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-cron
-    newTag: "main-143c8cce7799590df28f848662575ebe64bf3a49"
-  - name: todo-backup
-    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-backup
-    newTag: "1.0"
-  - name: broadcaster
-    newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/broadcaster
-    newTag: "main-143c8cce7799590df28f848662575ebe64bf3a49"
+- name: broadcaster
+  newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/broadcaster
+  newTag: main-ae39a8da714e386652df4e43644ac9408481ef03
+- name: todo-app
+  newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-app
+  newTag: main-ae39a8da714e386652df4e43644ac9408481ef03
+- name: todo-backend-app
+  newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-backend
+  newTag: main-ae39a8da714e386652df4e43644ac9408481ef03
+- name: todo-backup
+  newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-backup
+  newTag: "1.0"
+- name: todo-cron
+  newName: europe-north1-docker.pkg.dev/dwk-gke-502909/dwk-repo/todo-cron
+  newTag: main-ae39a8da714e386652df4e43644ac9408481ef03
