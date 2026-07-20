@@ -1,0 +1,63 @@
+name: Build and publish log_output
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'log_output/**'
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  REGISTRY: europe-north1-docker.pkg.dev
+  REPOSITORY: dwk-repo
+
+jobs:
+  build-publish:
+    name: Build, Push, Release
+    runs-on: ubuntu-latest
+    environment: GKE_PROJECT
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: "${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}"
+          service_account: "${{ secrets.SERVICE_ACCOUNT }}"
+
+      - name: 'Set up Cloud SDK'
+        uses: google-github-actions/setup-gcloud@v3
+
+      - run: gcloud --quiet auth configure-docker $REGISTRY
+
+      # tag images with the GitHub SHA to get a unique tag
+      - name: Build and publish reader
+        run: |-
+          docker build --tag "$REGISTRY/$PROJECT_ID/$REPOSITORY/log-output-reader:$GITHUB_SHA" ./log_output/reader
+          docker push "$REGISTRY/$PROJECT_ID/$REPOSITORY/log-output-reader:$GITHUB_SHA"
+
+      - name: Build and publish writer
+        run: |-
+          docker build --tag "$REGISTRY/$PROJECT_ID/$REPOSITORY/log-output-writer:$GITHUB_SHA" ./log_output/writer
+          docker push "$REGISTRY/$PROJECT_ID/$REPOSITORY/log-output-writer:$GITHUB_SHA"
+
+      - name: Set up Kustomize
+        uses: imranismail/setup-kustomize@v3
+
+      - name: Use right images
+        working-directory: log_output/manifests/gke
+        run: |-
+          kustomize edit set image log-output-reader=$REGISTRY/$PROJECT_ID/$REPOSITORY/log-output-reader:$GITHUB_SHA
+          kustomize edit set image log-output-writer=$REGISTRY/$PROJECT_ID/$REPOSITORY/log-output-writer:$GITHUB_SHA
+
+      - name: Commit kustomization.yaml to GitHub
+        uses: EndBug/add-and-commit@v10
+        with:
+          add: 'log_output/manifests/gke/kustomization.yaml'
+          message: "New log_output version released ${{ github.sha }}"
