@@ -38,3 +38,28 @@ kubectl apply -f manifests/deployment.yaml
 kubectl apply -f manifests/service.yaml
 kubectl apply -f manifests/ingress.yaml
 ```
+
+## GitOps on GKE (Exercise 4.7)
+
+`manifests/gke` is a Kustomize base whose images come from GCP Artifact
+Registry. `.github/workflows/log-output.yaml` builds and pushes new
+`reader`/`writer` images (tagged with the commit SHA) on every push under
+`log_output/**`, runs `kustomize edit set image`, and commits the updated
+`kustomization.yaml` back to the repo using the workflow's default
+`GITHUB_TOKEN` — pushes made with that token don't re-trigger the workflow,
+so this doesn't create an infinite loop.
+
+ArgoCD (installed in the `argocd` namespace on the GKE cluster, `Application`
+defined in `manifests/argocd/application.yaml`) watches `manifests/gke` on
+`main` and auto-syncs the cluster whenever that commit lands — no manual
+`kubectl apply` needed after the initial bootstrap:
+
+```bash
+kubectl apply -f manifests/argocd/application.yaml
+```
+
+The Deployment uses `strategy: type: Recreate` since `reader` and `writer`
+share a `ReadWriteOnce` PVC — without it, a rolling update deadlocks (the new
+pod can't attach the volume while the old one still holds it), which matters
+more here than in a manually-applied setup since nobody's watching to
+unstick it.
