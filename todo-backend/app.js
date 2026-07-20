@@ -57,6 +57,18 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && req.url === '/readyz') {
+    try {
+      await pool.query('SELECT 1');
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('OK');
+    } catch (err) {
+      res.writeHead(503, { 'Content-Type': 'text/plain' });
+      res.end('Database unavailable');
+    }
+    return;
+  }
+
   if (req.method === 'GET' && req.url === '/todos') {
     const { rows } = await pool.query('SELECT text FROM todos ORDER BY id');
     res.writeHead(200, { 'Content-Type': 'application/json' });

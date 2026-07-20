@@ -9,6 +9,8 @@ const IMAGE_CACHE_MS = IMAGE_CACHE_MINUTES * 60 * 1000;
 const IMAGE_SOURCE_URL = process.env.IMAGE_SOURCE_URL || 'https://picsum.photos/1200';
 const TODO_BACKEND_URL = process.env.TODO_BACKEND_URL || 'http://todo-backend-svc:3000/todos';
 
+let healthy = true;
+
 async function getImage() {
   const isFresh =
     fs.existsSync(IMAGE_PATH) &&
@@ -48,6 +50,7 @@ function renderPage(todos) {
     button { padding: 0.5rem 1rem; font-size: 1rem; background: #4caf50; color: white; border: none; border-radius: 4px; }
     ul { list-style: none; padding: 0; text-align: left; }
     li { background: #f5f5f5; border-left: 4px solid #4caf50; padding: 0.75rem; margin-bottom: 0.5rem; }
+    .break-btn { background: #d9534f; margin-top: 1rem; }
   </style>
 </head>
 <body>
@@ -59,12 +62,55 @@ function renderPage(todos) {
   </form>
   <h2>Todos</h2>
   <ul>${todoItems}</ul>
+  <form action="/break" method="POST">
+    <button type="submit" class="break-btn">break the app</button>
+  </form>
+</body>
+</html>`;
+}
+
+function renderBrokenPage() {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <title>Todo App</title>
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 2rem auto; text-align: center; }
+    .failure { background: #fdecea; border: 1px solid #f5c6cb; border-radius: 8px; padding: 2rem; color: #7a1f1f; }
+    .failure h1 { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <div class="failure">
+    <h1>System Failure</h1>
+    <p>The Todo App is currently unhealthy. Please wait for recovery.</p>
+  </div>
 </body>
 </html>`;
 }
 
 const server = http.createServer(async (req, res) => {
+  if (req.method === 'GET' && req.url === '/health') {
+    res.writeHead(healthy ? 200 : 503, { 'Content-Type': 'text/plain' });
+    res.end(healthy ? 'OK' : 'Unhealthy');
+    return;
+  }
+
+  if (req.method === 'POST' && req.url === '/break') {
+    healthy = false;
+    console.log('App broken via /break');
+    res.writeHead(303, { Location: '/' });
+    res.end();
+    return;
+  }
+
   if (req.method === 'GET' && req.url === '/') {
+    if (!healthy) {
+      res.writeHead(503, { 'Content-Type': 'text/html' });
+      res.end(renderBrokenPage());
+      return;
+    }
+
     const todos = await getTodos();
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(renderPage(todos));
