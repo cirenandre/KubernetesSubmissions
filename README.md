@@ -45,3 +45,4 @@ run it.
 - 4.2. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/4.2/project)
 - 4.3. [monitoring](https://github.com/cirenandre/KubernetesSubmissions/tree/4.3/monitoring)
 - 4.4. [ping-pong](https://github.com/cirenandre/KubernetesSubmissions/tree/4.4/ping-pong)
+- 4.5. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/4.5/project)
