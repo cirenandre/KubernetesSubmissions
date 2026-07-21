@@ -51,3 +51,4 @@ run it.
 - 4.8. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/4.8/project)
 - 4.9. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/4.9/project)
 - 4.10. [project](https://github.com/cirenandre/KubernetesSubmissions/tree/4.10/project) (config repo: [KubernetesSubmissions-config](https://github.com/cirenandre/KubernetesSubmissions-config))
+- 5.1. [dummysite-controller](https://github.com/cirenandre/KubernetesSubmissions/tree/5.1/dummysite-controller)
